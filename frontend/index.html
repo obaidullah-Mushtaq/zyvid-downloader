@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Video Downloader Pro</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Elements -->
+  <div class="bg-decoration">
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <i class="fas fa-download"></i>
+        <span>Zyvid Downloader<span class="pro">Free</span></span>
+      </div>
+      <div class="nav-stats">
+        <div class="stat-item">
+          <span class="stat-number" id="downloads-counter">0</span>
+          <span class="stat-label">Downloads</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <div class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Download Videos in
+          <span class="gradient-text">Premium Quality</span>
+        </h1>
+        <p class="hero-subtitle">
+          Unterstützt YouTubeVideo, Youtube Shorts, TikTok, Instagram, Snapchat, amazon Produkte Video,  und viele mehr
+        </p>
+      </div>
+    </div>
+
+    <!-- Download Form -->
+    <div class="download-card">
+      <div class="card-header">
+        <div class="platform-indicators">
+          <div class="platform-icon youtube" title="YouTube">
+            <i class="fab fa-youtube"></i>
+          </div>
+          <div class="platform-icon tiktok" title="TikTok">
+            <i class="fab fa-tiktok"></i>
+          </div>
+          <div class="platform-icon instagram" title="Instagram">
+            <i class="fab fa-instagram"></i>
+          </div>
+         <div class="platform-icon snapchat" title="Snapchat">
+             <i class="fab fa-snapchat-ghost"></i>
+        </div>
+      </div>
+
+      <form id="download-form" class="download-form">
+        <div class="input-group">
+          <div class="input-wrapper">
+            <i class="fas fa-link input-icon"></i>
+            <input 
+              type="text" 
+              id="url" 
+              placeholder="Video-URL hier einfügen..." 
+              required 
+              autocomplete="off"
+            />
+            <div class="input-border"></div>
+          </div>
+          <div class="platform-detected" id="platform-detected" style="display: none;">
+            <i class="fas fa-check-circle"></i>
+            <span id="detected-platform">Plattform erkannt</span>
+          </div>
+        </div>
+
+      <div class="select-wrapper">
+        <select id="platform" class="platform-select">
+          <option value="youtube">YouTube</option>
+          <option value="tiktok">TikTok</option>
+          <option value="instagram">Instagram</option>
+          <option value="snapchat">Snapchat</option>
+        </select>
+        <i class="fas fa-chevron-down select-arrow"></i>
+      </div>
+
+
+        <button type="submit" class="download-btn" id="download-btn">
+          <span class="btn-content">
+            <i class="fas fa-download"></i>
+            <span class="btn-text">Download starten</span>
+          </span>
+          <div class="btn-ripple"></div>
+        </button>
+      </form>
+
+      <!-- Loading State -->
+      <div id="loading" class="loading-container" style="display: none;">
+        <div class="loading-animation">
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring delay-1"></div>
+          <div class="pulse-ring delay-2"></div>
+          <i class="fas fa-download loading-icon"></i>
+        </div>
+        <div class="loading-text">
+          <h3>Video wird verarbeitet...</h3>
+          <p id="loading-status">Verbindung wird hergestellt</p>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Success/Error Response -->
+      <div id="response" class="response-container"></div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section">
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3>Blitzschnell</h3>
+          <p>Hochgeschwindigkeits-Download mit optimierter Performance</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-hd-video"></i>
+          </div>
+          <h3>HD Qualität</h3>
+          <p>Videos in bestmöglicher Qualität herunterladen</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3>100% Sicher</h3>
+          <p>Keine Malware, keine versteckten Kosten, nur saubere Downloads</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script src="script.js" defer></script>
+</body>
+</html>
