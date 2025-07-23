@@ -1,4 +1,5 @@
 import yt_dlp
+from backend.api import app
 
 def download_video(url):
     ydl_opts = {
