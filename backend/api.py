@@ -52,6 +52,13 @@ def get_platform_options(platform: str) -> dict:
             **base_opts,
             'format': 'best[ext=mp4]/best',
         }
+    
+    elif platform == "pinterest":
+        return {
+            **base_opts,
+            'format': 'best[ext=mp4]/best',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        }
 
     return base_opts
 

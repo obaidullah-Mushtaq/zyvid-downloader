@@ -104,7 +104,11 @@ class VideoDownloader {
     } else if (input.includes("snapchat.com") || input.includes("t.snapchat.com")) {
       detectedPlatform = "snapchat";
       detectedPlatformSpan.textContent = "Snapchat erkannt";
-    }
+    } else if (input.includes("pinterest.com")) {
+      detectedPlatform = "pinterest";
+      detectedPlatformSpan.textContent = "Pinterest erkannt";
+  }
+
     
     if (detectedPlatform) {
       platformSelect.value = detectedPlatform;
@@ -411,7 +415,7 @@ class VideoDownloader {
         </button>
       </div>
     `;
-    
+
     responseEl.style.animation = 'shake 0.5s ease-in-out';
     setTimeout(() => {
       responseEl.style.animation = '';
