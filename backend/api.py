@@ -1,10 +1,9 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import yt_dlp
 import os
 import re
-from fastapi import FastAPI, Query, Request
 
 app = FastAPI()
 
@@ -22,7 +21,7 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 # Hilfsfunktion: Dateinamen säubern
 def sanitize_filename(name: str) -> str:
-    name = re.sub(r"[^\w\-_. ]", "", name)  # nur erlaubte Zeichen
+    name = re.sub(r"[^\w\-_. ]", "", name)
     return name.replace(" ", "_")
 
 @app.get("/download")
@@ -32,7 +31,6 @@ def download_video(
     platform: str = Query("youtube")
 ):
     try:
-        # Zuerst Metadaten holen (ohne Download)
         with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
             info = ydl.extract_info(url, download=False)
 
@@ -42,17 +40,16 @@ def download_video(
         filename = f"{platform}_{safe_title}.{ext}"
         filepath = os.path.join(DOWNLOAD_DIR, filename)
 
-        # Download-Einstellungen
         ydl_opts = {
             'outtmpl': filepath,
             'format': 'best[ext=mp4]/best',
-            'quiet': True
+            'quiet': True,
+            'no_playlist': True  # wichtig für YouTube-Einzelseiten
         }
 
         if platform in ["tiktok", "insta", "snapchat"]:
             ydl_opts["format"] = "mp4"
 
-        # Video herunterladen
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
