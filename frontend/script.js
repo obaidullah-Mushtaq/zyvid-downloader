@@ -280,7 +280,7 @@ class VideoDownloader {
     await this.delay(3000);
     
     try {
-      const response = await fetch(`http://127.0.0.1:8000/download?url=${encodeURIComponent(url)}&platform=${platform}`);
+        const response = await fetch(`http://127.0.0.1:10000/download?url=${encodeURIComponent(url)}&platform=${platform}`);
       return await response.json();
     } catch (error) {
       // Fallback for demo purposes
