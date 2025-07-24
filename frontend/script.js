@@ -1,5 +1,3 @@
-// Enhanced Video Downloader Script with Professional Animations and UX
-
 class VideoDownloader {
   constructor() {
     this.downloadCount = 0;
@@ -11,6 +9,7 @@ class VideoDownloader {
       "Fast fertig..."
     ];
     this.currentLoadingMessage = 0;
+    this.baseUrl = "https://zyvid-downloader.onrender.com";
     
     this.initializeEventListeners();
     this.initializeAnimations();
@@ -18,54 +17,42 @@ class VideoDownloader {
   }
 
   initializeEventListeners() {
-    // Form submission
     document.getElementById("download-form").addEventListener("submit", (e) => {
       this.handleDownload(e);
     });
 
-    // URL input with real-time platform detection
     document.getElementById("url").addEventListener("input", (e) => {
       this.detectPlatform(e.target.value);
     });
 
-    // URL input focus effects
     document.getElementById("url").addEventListener("focus", () => {
       this.showInputAnimation();
     });
 
-    // Platform selection
     document.getElementById("platform").addEventListener("change", (e) => {
       this.highlightPlatformIcon(e.target.value);
     });
 
-    // Platform icon clicks
     document.querySelectorAll('.platform-icon').forEach(icon => {
       icon.addEventListener('click', () => {
-        const platform = icon.classList[1]; // Get platform class
+        const platform = icon.classList[1];
         document.getElementById("platform").value = platform;
         this.highlightPlatformIcon(platform);
       });
     });
 
-    // Button hover effects
     document.getElementById("download-btn").addEventListener("mouseenter", () => {
       this.createButtonParticles();
     });
   }
 
   initializeAnimations() {
-    // Animate download counter on load
     this.animateCounter();
-    
-    // Stagger animation for feature cards
     this.observeFeatureCards();
-    
-    // Initialize platform icon highlighting
     this.highlightPlatformIcon('youtube');
   }
 
   loadDownloadCount() {
-    // Simulate loading download count (in real app, this would come from server)
     const savedCount = Math.floor(Math.random() * 50000) + 10000;
     this.downloadCount = savedCount;
     this.animateCounter();
@@ -80,8 +67,6 @@ class VideoDownloader {
     const animate = (currentTime) => {
       const elapsed = currentTime - start;
       const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function for smooth animation
       const easeOut = 1 - Math.pow(1 - progress, 3);
       const currentCount = Math.floor(easeOut * target);
       
@@ -116,20 +101,16 @@ class VideoDownloader {
     } else if (input.includes("instagram.com")) {
       detectedPlatform = "instagram";
       detectedPlatformSpan.textContent = "Instagram erkannt";
-    }else if (input.includes("snapchat.com")) {
+    } else if (input.includes("snapchat.com") || input.includes("t.snapchat.com")) {
       detectedPlatform = "snapchat";
       detectedPlatformSpan.textContent = "Snapchat erkannt";
     }
-
-    
     
     if (detectedPlatform) {
       platformSelect.value = detectedPlatform;
       this.highlightPlatformIcon(detectedPlatform);
       detectedElement.style.display = "flex";
       detectedElement.classList.add("show");
-      
-      // Add success pulse animation
       this.addPulseEffect(detectedElement);
     } else {
       detectedElement.classList.remove("show");
@@ -150,7 +131,6 @@ class VideoDownloader {
     if (activeIcon) {
       activeIcon.classList.add('active');
       
-      // Add CSS for active state if not exists
       if (!document.querySelector('#dynamic-styles')) {
         const style = document.createElement('style');
         style.id = 'dynamic-styles';
@@ -250,17 +230,18 @@ class VideoDownloader {
       return;
     }
     
-    // Reset response
+    if (!this.isValidUrl(url)) {
+      this.showError("Bitte geben Sie eine gültige URL ein (muss mit http:// oder https:// beginnen).");
+      return;
+    }
+    
     responseEl.innerHTML = "";
     responseEl.className = "response-container";
     
-    // Start loading animation
     this.startLoading(loadingEl, downloadBtn);
     
     try {
-      // Simulate API call with realistic delay
       const response = await this.makeDownloadRequest(url, platform);
-      
       this.stopLoading(loadingEl, downloadBtn);
       
       if (response.status === "success") {
@@ -272,76 +253,110 @@ class VideoDownloader {
     } catch (error) {
       this.stopLoading(loadingEl, downloadBtn);
       this.showError("Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.");
+      console.error("Download-Fehler:", error);
+    }
+  }
+
+  isValidUrl(string) {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 
   async makeDownloadRequest(url, platform) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+    
     try {
-      const response = await fetch(`https://zyvid-downloader.onrender.com/download?url=${encodeURIComponent(url)}&platform=${platform}`);
+      const response = await fetch(
+        `${this.baseUrl}/download?url=${encodeURIComponent(url)}&platform=${platform}`,
+        { 
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
-        throw new Error("Fehler beim Herunterladen.");
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
+      
+      if (data.status === "error") {
+        return data;
+      }
 
       if (!data.download_url) {
         throw new Error("Keine gültige Download-URL empfangen.");
       }
 
-      const a = document.createElement("a");
-      a.href = data.download_url;
-      a.download = data.filename || "video.mp4";
-      a.click();
-
+      this.triggerDownload(data.download_url, data.filename || "video.mp4");
       return data;
     } catch (error) {
-      console.error(error);
+      clearTimeout(timeoutId);
+      console.error("API-Fehler:", error);
+      
+      if (error.name === 'AbortError') {
+        return {
+          status: "error",
+          message: "Request-Timeout: Der Server braucht zu lange für die Antwort."
+        };
+      }
+      
       return {
         status: "error",
-        message: "Download fehlgeschlagen."
+        message: `Download fehlgeschlagen: ${error.message}`
       };
     }
   }
 
-
+  triggerDownload(url, filename) {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 
   startLoading(loadingEl, downloadBtn) {
-    // Show loading container
     loadingEl.style.display = "block";
     loadingEl.style.opacity = "0";
     setTimeout(() => {
       loadingEl.style.opacity = "1";
     }, 10);
     
-    // Disable and animate button
     downloadBtn.disabled = true;
     downloadBtn.style.opacity = "0.6";
     downloadBtn.style.transform = "scale(0.95)";
     
-    // Start loading message rotation
     this.currentLoadingMessage = 0;
     this.loadingMessageInterval = setInterval(() => {
       this.updateLoadingMessage();
     }, 800);
     
-    // Scroll to loading area
     loadingEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   stopLoading(loadingEl, downloadBtn) {
-    // Hide loading
     loadingEl.style.opacity = "0";
     setTimeout(() => {
       loadingEl.style.display = "none";
     }, 300);
     
-    // Re-enable button
     downloadBtn.disabled = false;
     downloadBtn.style.opacity = "1";
     downloadBtn.style.transform = "scale(1)";
     
-    // Clear interval
     if (this.loadingMessageInterval) {
       clearInterval(this.loadingMessageInterval);
     }
@@ -368,7 +383,7 @@ class VideoDownloader {
         </div>
         <h3>Download erfolgreich!</h3>
         <p><strong>${data.title}</strong> wurde erfolgreich verarbeitet.</p>
-        <a href="${data.download_url}" download class="download-link">
+        <a href="${data.download_url}" download="${data.filename}" class="download-link">
           <i class="fas fa-download"></i>
           <span>Jetzt herunterladen</span>
         </a>
@@ -376,10 +391,8 @@ class VideoDownloader {
       </div>
     `;
     
-    // Add celebration animation
     this.triggerCelebration();
     
-    // Scroll to response
     setTimeout(() => {
       responseEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
@@ -390,22 +403,20 @@ class VideoDownloader {
     responseEl.className = "response-container error show";
     responseEl.innerHTML = `
       <div style="text-align: center;">
-        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; margin-bottom: 1rem; color: #e53e3e;"></i>
         <h3>Fehler beim Download</h3>
-        <p>${message}</p>
-        <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--gradient-main); border: none; border-radius: 8px; color: white; cursor: pointer;">
+        <p style="margin-bottom: 1.5rem;">${message}</p>
+        <button onclick="window.videoDownloader.clearForm()" style="margin: 0.5rem; padding: 0.75rem 1.5rem; background: var(--gradient-main); border: none; border-radius: 8px; color: white; cursor: pointer;">
           <i class="fas fa-redo"></i> Erneut versuchen
         </button>
       </div>
     `;
     
-    // Shake animation for error
     responseEl.style.animation = 'shake 0.5s ease-in-out';
     setTimeout(() => {
       responseEl.style.animation = '';
     }, 500);
     
-    // Add shake keyframes if not exists
     if (!document.querySelector('#shake-styles')) {
       const style = document.createElement('style');
       style.id = 'shake-styles';
@@ -420,9 +431,14 @@ class VideoDownloader {
     }
   }
 
+  clearForm() {
+    document.getElementById("url").value = "";
+    document.getElementById("response").innerHTML = "";
+    document.getElementById("response").className = "response-container";
+    document.getElementById("platform-detected").style.display = "none";
+  }
+
   triggerCelebration() {
-    // Create floating success particles
-    const container = document.querySelector('.main-container');
     const colors = ['#48bb78', '#667eea', '#f093fb'];
     
     for (let i = 0; i < 20; i++) {
@@ -457,20 +473,13 @@ class VideoDownloader {
     this.downloadCount++;
     this.animateCounter();
   }
-
-  delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
 }
 
-// Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-  new VideoDownloader();
+  window.videoDownloader = new VideoDownloader();
   
-  // Add smooth scroll behavior
   document.documentElement.style.scrollBehavior = 'smooth';
   
-  // Add custom cursor effects for interactive elements
   document.querySelectorAll('button, .platform-icon, .download-link, a').forEach(el => {
     el.addEventListener('mouseenter', () => {
       document.body.style.cursor = 'pointer';
@@ -481,7 +490,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   
-  // Add keyboard navigation support
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && e.ctrlKey) {
       const form = document.getElementById('download-form');
