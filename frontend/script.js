@@ -107,7 +107,10 @@ class VideoDownloader {
     } else if (input.includes("pinterest.com")) {
       detectedPlatform = "pinterest";
       detectedPlatformSpan.textContent = "Pinterest erkannt";
-  }
+    } else if(input.includes("amazon.")) {
+      detectedPlatform = "amazon";
+      detectedPlatformSpan.textContent = "Amazon erkannt";
+    }
 
     
     if (detectedPlatform) {

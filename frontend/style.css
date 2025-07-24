@@ -293,6 +293,19 @@ body {
   border: 1px solid rgba(225, 48, 108, 0.2);
 }
 
+.platform-icon.pinterest {  
+  background: rgba(225, 48, 108, 0.1);
+  color: #e1306c;
+  border: 1px solid rgba(225, 48, 108, 0.2);
+}
+
+.platform-icon.amazon {  
+  background: rgba(225, 48, 108, 0.1);
+  color: #e1306c;
+  border: 1px solid rgba(225, 48, 108, 0.2);
+}
+
+
 .platform-icon:hover {
   transform: scale(1.1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
