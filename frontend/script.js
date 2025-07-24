@@ -274,30 +274,36 @@ class VideoDownloader {
       this.showError("Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.");
     }
   }
-async makeDownloadRequest(url, platform) {
-  try {
-    const response = await fetch(`https://zyvid-downloader.onrender.com/download?url=${encodeURIComponent(url)}&platform=${platform}`);
-    
-    if (!response.ok) {
-      throw new Error("Fehler beim Herunterladen.");
+
+  async makeDownloadRequest(url, platform) {
+    try {
+      const response = await fetch(`https://zyvid-downloader.onrender.com/download?url=${encodeURIComponent(url)}&platform=${platform}`);
+      
+      if (!response.ok) {
+        throw new Error("Fehler beim Herunterladen.");
+      }
+
+      const data = await response.json();
+
+      if (!data.download_url) {
+        throw new Error("Keine gültige Download-URL empfangen.");
+      }
+
+      const a = document.createElement("a");
+      a.href = data.download_url;
+      a.download = data.filename || "video.mp4";
+      a.click();
+
+      return data;
+    } catch (error) {
+      console.error(error);
+      return {
+        status: "error",
+        message: "Download fehlgeschlagen."
+      };
     }
-
-    const blob = await response.blob();
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = downloadUrl;
-    a.download = "video.mp4";
-    a.click();
-
-    return { status: "success" };
-  } catch (error) {
-    console.error(error);
-    return {
-      status: "error",
-      message: "Download fehlgeschlagen."
-    };
   }
-}
+
 
 
   startLoading(loadingEl, downloadBtn) {
