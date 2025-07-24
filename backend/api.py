@@ -26,8 +26,9 @@ def sanitize_filename(name: str) -> str:
 
 @app.get("/download")
 def download_video(
-    url: str = Query(..., description="Video-URL"),
-    platform: str = Query("youtube", description="Plattform (youtube, tiktok, insta, snapchat)")
+    request: Request,
+    url: str = Query(...),
+    platform: str = Query("youtube")
 ):
     try:
         # Zuerst Metadaten holen (ohne Download)
@@ -59,7 +60,7 @@ def download_video(
             "platform": platform,
             "title": title,
             "filename": filename,
-            "download_url": f"http://127.0.0.1:8000/file/{filename}"
+            "download_url": f"https://zyvid-downloader.onrender.com/file/{filename}"
         }
 
     except Exception as e:
