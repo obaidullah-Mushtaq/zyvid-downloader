@@ -7,7 +7,6 @@ import re
 import logging
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from instagram_downloader import download_instagram_post
 
 app = FastAPI()
 
